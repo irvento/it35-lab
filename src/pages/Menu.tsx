@@ -1,5 +1,5 @@
 import { 
-    IonButtons,
+    IonButton,
       IonContent, 
       IonHeader, 
       IonIcon, 
@@ -13,7 +13,7 @@ import {
       IonTitle, 
       IonToolbar 
   } from '@ionic/react'
-  import {homeOutline, rocketOutline} from 'ionicons/icons';
+  import {homeOutline, logOutOutline, rocketOutline} from 'ionicons/icons';
 import { Redirect, Route } from 'react-router';
 import Home from './Home';
 import About from './About';
@@ -44,6 +44,13 @@ import About from './About';
                                 </IonItem>
                             </IonMenuToggle>
                         ))}
+
+                        {/*Logout Button*/}
+                        <IonButton routerLink="/it35-lab" routerDirection="back" expand="full">
+                            <IonIcon icon={logOutOutline} slot="start"> </IonIcon>
+                        Logout
+                        </IonButton>
+                        
                     </IonContent>
                 </IonMenu>
                 
@@ -55,6 +62,7 @@ import About from './About';
                         <Redirect to="/it35-lab/app/Home"/>
                     </Route>
                 </IonRouterOutlet>
+                
             </IonSplitPane>
         </IonPage>
     );
