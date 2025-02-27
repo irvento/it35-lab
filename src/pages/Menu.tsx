@@ -18,7 +18,7 @@ import { Redirect, Route } from 'react-router';
 import Home from './Home';
 import About from './About';
 import Details from './Details';
-import Map from './Map';
+import Map from './MapPage';
 
   const Menu: React.FC = () => {
     const path = [

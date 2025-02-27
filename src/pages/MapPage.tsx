@@ -1,16 +1,15 @@
 import { 
     IonButtons,
-      IonContent, 
-      IonHeader, 
-      IonMenuButton, 
-      IonPage, 
-      IonTitle, 
-      IonToolbar 
+    IonContent, 
+    IonHeader, 
+    IonMenuButton, 
+    IonPage, 
+    IonTitle, 
+    IonToolbar 
   } from '@ionic/react';
-  import Mapa from '../components/Mapa';
-  import 'leaflet/dist/leaflet.css';
-
-  const Map: React.FC = () => {
+  import Map from '../components/Map';
+  
+  const MapPage: React.FC = () => {
     return (
       <IonPage>
         <IonHeader>
@@ -21,11 +20,13 @@ import {
             <IonTitle>Map</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <IonContent fullscreen>
-            <Mapa />
-        </IonContent>
+        <IonContent className="ion-padding">
+    <div style={{ height: '100%', width: '100%' }}>
+      <Map />
+    </div>
+  </IonContent>
       </IonPage>
     );
   };
   
-  export default Map;
+  export default MapPage;
