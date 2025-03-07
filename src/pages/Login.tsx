@@ -1,4 +1,5 @@
 import { 
+  IonAlert,
   IonButton,
   IonButtons,
     IonContent, 
@@ -42,10 +43,18 @@ const Login: React.FC = () => {
           type="password"
         />
       </IonItem>
-      <IonButton expand="full" onClick={doLogin}>
+      <IonButton expand="full" onClick={doLogin} id='login-button'>
         Login
       </IonButton>
       
+      <IonAlert
+        trigger="login-button'"
+        header="logged in!"
+        subHeader="A Sub Header Is Optional"
+        message="Logged in successfully"
+        buttons={['ok']}
+      ></IonAlert>
+
     </IonContent>
     
   </IonPage>

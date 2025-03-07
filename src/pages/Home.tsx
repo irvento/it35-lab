@@ -47,7 +47,7 @@ import Maps from './home-tabs/Maps';
         <IonRouterOutlet>
 
           <Route exact path="/it35-lab/app/home/dashboard" render={Dashboard} />
-          <Route exact path="/it35-lab/app/home/feed" render={Feed} />
+          <Route exact path="/it35-lab/app/home/feed" component={Feed} />
           <Route exact path="/it35-lab/app/home/map" render={Maps} />
           
 
