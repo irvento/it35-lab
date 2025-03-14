@@ -84,12 +84,12 @@ const Login: React.FC = () => {
         <IonGrid> 
           <IonRow>
           <IonCol>
-            <IonButton expand="full" fill='clear'>
+            <IonButton onClick={() => setShowModal(true)} expand="full" fill='clear'>
           Register
         </IonButton>
           </IonCol>
           <IonCol>
-          <IonButton expand="full" fill='clear'>
+          <IonButton onClick={() => setShowModal(true)} expand="full" fill='clear'>
           Forgot Password?
         </IonButton>
           </IonCol>
@@ -103,6 +103,56 @@ const Login: React.FC = () => {
 
         
 
+        {/* IonToast for successful registration */}
+        <IonToast
+          isOpen={showToast}
+          onDidDismiss={() => setShowToast(false)}
+          message="Registration Successful!"
+          duration={2000}
+        />
+
+        {/* IonModal for registration form */}
+        <IonModal isOpen={showModal} onDidDismiss={() => closeModal()}>
+          <IonContent className="ion-padding">
+            <IonHeader>
+              <IonToolbar>
+                <IonTitle>Register</IonTitle>
+                <IonButtons slot="end">
+                  <IonButton onClick={closeModal}>Close</IonButton>
+                </IonButtons>
+              </IonToolbar>
+            </IonHeader>
+            <IonList>
+              <IonItem>
+                <IonLabel position="floating">Username</IonLabel>
+                <IonInput 
+                  value={username}
+                  onIonChange={(e) => setUsername(e.detail.value!)} 
+                />
+              </IonItem>
+              <IonItem>
+                <IonLabel position="floating">Email</IonLabel>
+                <IonInput 
+                  value={email}
+                  onIonChange={(e) => setEmail(e.detail.value!)} 
+                />
+              </IonItem>
+              <IonItem>
+                <IonLabel position="floating">Password</IonLabel>
+                <IonInput 
+                  type="password"
+                  value={password}
+                  onIonChange={(e) => setPassword(e.detail.value!)} 
+                >
+                  <IonInputPasswordToggle slot="end" />
+                </IonInput>
+              </IonItem>
+            </IonList>
+            <IonButton expand="full" onClick={doRegister}>
+              Register
+            </IonButton>
+          </IonContent>
+        </IonModal>
       </IonContent>
     </IonPage>
   );
