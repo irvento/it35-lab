@@ -22,7 +22,7 @@ import {
   IonAvatar,
   IonIcon
 } from '@ionic/react';
-import { transgender } from 'ionicons/icons';
+import { cash } from 'ionicons/icons';
 import React, { useState } from 'react';
 
 const Login: React.FC = () => {
@@ -57,7 +57,7 @@ const Login: React.FC = () => {
 
         <IonAvatar style={{margin: 'auto', display: 'flex', alignItems: 'center', marginTop: '50px', marginBottom: '50px', width: '200px', height: '200px'}}>
           <IonIcon 
-            icon={finger-print}
+            icon={cash}
             style={{fontSize: '200px', color: 'var(--ion-color-primary)'}} 
             />
         </IonAvatar>
@@ -148,7 +148,7 @@ const Login: React.FC = () => {
                 </IonInput>
               </IonItem>
             </IonList>
-            <IonButton expand="full" onClick={doRegister}>
+            <IonButton expand="full" onClick={doRegister} shape='round'>
               Register
             </IonButton>
           </IonContent>
