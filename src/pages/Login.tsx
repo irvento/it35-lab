@@ -55,104 +55,45 @@ const Login: React.FC = () => {
       </IonHeader>
       <IonContent className='ion-padding'>
 
-        <IonAvatar style={{margin: 'auto', display: 'flex', alignItems: 'center', marginTop: '50px', marginBottom: '50px', width: '200px', height: '200px'}}>
+        <IonAvatar style={{margin: 'auto', alignItems: 'center', width: '200px', height: '150px'}}>
           <IonIcon 
             icon={cash}
-            style={{fontSize: '200px', color: 'var(--ion-color-primary)'}} 
+            style={{fontSize: '125px', color: 'var(--ion-color-primary)'}} 
             />
         </IonAvatar>
         
         <IonInput 
         className="ion-margin-bottom"
-          label="Username" 
-          value={username}
-          fill='outline'
-          onIonChange={(e) => setUsername(e.detail.value!)}
+        label="Email" 
+        labelPlacement="floating" 
+        fill="outline"
+        type="email"
+        placeholder="Enter Email"
+        value={email}
+        onIonChange={e => setEmail(e.detail.value!)}
         />
         <IonInput 
         className="ion-margin-bottom"
-          type="password" 
-          label="Password" 
-          value={password}
-          fill='outline'
-
-          onIonChange={(e) => setPassword(e.detail.value!)}
+        fill="outline"
+        type="password"
+        placeholder="Password"
+        value={password}
+        onIonChange={e => setPassword(e.detail.value!)}
         >
           <IonInputPasswordToggle slot="end" />
         </IonInput>
 
-        <IonGrid> 
-          <IonRow>
-          <IonCol>
-            <IonButton onClick={() => setShowModal(true)} expand="full" fill='clear'>
-          Register
-        </IonButton>
-          </IonCol>
-          <IonCol>
-          <IonButton onClick={() => setShowModal(true)} expand="full" fill='clear'>
-          Forgot Password?
-        </IonButton>
-          </IonCol>
-          </IonRow>
-        </IonGrid>
+
 
         <IonButton onClick={() => doLogin()} expand="full"
           shape='round'>
           Login
         </IonButton>
 
-        
+        <IonButton  routerLink="/it35-lab/register" onClick={() => setShowModal(true)} expand="full" fill='clear'>
+          Register
+        </IonButton>
 
-        {/* IonToast for successful registration */}
-        <IonToast
-          isOpen={showToast}
-          onDidDismiss={() => setShowToast(false)}
-          message="Registration Successful!"
-          duration={2000}
-        />
-
-        {/* IonModal for registration form */}
-        <IonModal isOpen={showModal} onDidDismiss={() => closeModal()}>
-          <IonContent className="ion-padding">
-            <IonHeader>
-              <IonToolbar>
-                <IonTitle>Register</IonTitle>
-                <IonButtons slot="end">
-                  <IonButton onClick={closeModal}>Close</IonButton>
-                </IonButtons>
-              </IonToolbar>
-            </IonHeader>
-            <IonList>
-              <IonItem>
-                <IonLabel position="floating">Username</IonLabel>
-                <IonInput 
-                  value={username}
-                  onIonChange={(e) => setUsername(e.detail.value!)} 
-                />
-              </IonItem>
-              <IonItem>
-                <IonLabel position="floating">Email</IonLabel>
-                <IonInput 
-                  value={email}
-                  onIonChange={(e) => setEmail(e.detail.value!)} 
-                />
-              </IonItem>
-              <IonItem>
-                <IonLabel position="floating">Password</IonLabel>
-                <IonInput 
-                  type="password"
-                  value={password}
-                  onIonChange={(e) => setPassword(e.detail.value!)} 
-                >
-                  <IonInputPasswordToggle slot="end" />
-                </IonInput>
-              </IonItem>
-            </IonList>
-            <IonButton expand="full" onClick={doRegister} shape='round'>
-              Register
-            </IonButton>
-          </IonContent>
-        </IonModal>
       </IonContent>
     </IonPage>
   );
