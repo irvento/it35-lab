@@ -17,11 +17,12 @@ import {
       IonToolbar, 
       useIonRouter
   } from '@ionic/react'
-  import {homeOutline, logOutOutline, rocketOutline, settingsOutline} from 'ionicons/icons';
+  import {homeOutline, logOutOutline, mapOutline, rocketOutline, settingsOutline} from 'ionicons/icons';
 import { Redirect, Route } from 'react-router';
 import Home from './Home';
 import About from './About';
 import Details from './Details';
+import Map from './MapPage';
 import { supabase } from '../utils/supabaseClient';
 import { useState } from 'react';
 import EditProfilePage from './EditProfilePage';
@@ -37,6 +38,7 @@ import EditProfilePage from './EditProfilePage';
         {name:'Home', url: '/it35-lab/app/home', icon: homeOutline},
         {name:'About', url: '/it35-lab/app/about', icon: rocketOutline},
         {name:'Profile', url: '/it35-lab/app/profile', icon: settingsOutline},
+        {name:'Map', url: '/it35-lab/app/map', icon: mapOutline},
     ]
     const handleLogout = async () => {
         const { error } = await supabase.auth.signOut();
@@ -85,6 +87,9 @@ import EditProfilePage from './EditProfilePage';
                     <Route exact path="/it35-lab/app/home" component={Home} />
                     <Route exact path="/it35-lab/app/home/details" component={Details} />
                     <Route exact path="/it35-lab/app/about" component={About} />
+                    <Route exact path="/it35-lab/app/map" component={Map} />
+                    
+                    {/* Profile Page */}    
                     <Route exact path="/it35-lab/app/profile" component={EditProfilePage} />
 
                     <Route exact path="/it35-lab/app">
