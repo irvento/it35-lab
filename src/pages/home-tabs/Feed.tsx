@@ -21,7 +21,16 @@ const Feed: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        
+      <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+          }}
+        >
+          Feed
+        </div>
         <FeedContainer />
       </IonContent>
     </IonPage>
