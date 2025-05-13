@@ -28,6 +28,11 @@ interface Comment {
   created_at: string;
   username?: string;
   avatar_url?: string;
+  users?: {
+    username: string;
+    user_avatar_url: string;
+  };
+  comment_replies?: Reply[];
   replies?: Reply[];
 }
 
@@ -88,8 +93,49 @@ const FeedContainer = () => {
     };
 
     const fetchPosts = async () => {
-      const { data, error } = await supabase.from('posts').select('*').order('post_created_at', { ascending: false });
-      if (!error) setPosts(data as Post[]);
+      const { data, error } = await supabase
+        .from('posts')
+        .select(`
+          *,
+          comments:comments (
+            id,
+            comment,
+            created_at,
+            user_id,
+            users:user_id (
+              username,
+              user_avatar_url
+            ),
+            comment_replies (
+              id,
+              reply,
+              created_at,
+              user_id,
+              users:user_id (
+                username,
+                user_avatar_url
+              )
+            )
+          )
+        `)
+        .order('post_created_at', { ascending: false });
+
+      if (!error && data) {
+        const formattedPosts = data.map(post => ({
+          ...post,
+          comments: post.comments?.map((comment: Comment) => ({
+            ...comment,
+            username: comment.users?.username,
+            avatar_url: comment.users?.user_avatar_url,
+            replies: comment.comment_replies?.map((reply: Reply) => ({
+              ...reply,
+              username: reply.users?.username,
+              avatar_url: reply.users?.user_avatar_url
+            })) || []
+          })) || []
+        }));
+        setPosts(formattedPosts);
+      }
     };
 
     const getCurrentLocation = () => {
@@ -525,10 +571,19 @@ const FeedContainer = () => {
                   </IonCol>
                 </IonRow>
                 {post.latitude && post.longitude && (
-                  <MapPreview 
-                    latitude={post.latitude} 
-                    longitude={post.longitude} 
-                  />
+                  <div style={{ 
+                    width: '100%', 
+                    marginTop: '10px',
+                    marginBottom: '10px',
+                    borderRadius: '8px',
+                    overflow: 'hidden',
+                    border: '1px solid #ddd'
+                  }}>
+                    <MapPreview 
+                      latitude={post.latitude} 
+                      longitude={post.longitude}
+                    />
+                  </div>
                 )}
                 <IonRow>
                   <IonCol>
@@ -536,11 +591,11 @@ const FeedContainer = () => {
                       fill="clear"
                       onClick={() => toggleComments(post.post_id)}
                     >
-                      {comments[post.post_id]?.length || 0} Comments
-                      {comments[post.post_id]?.reduce((total, comment) => 
+                      {post.comments?.length || 0} Comments
+                      {(post.comments || []).reduce((total, comment) => 
                         total + (comment.replies?.length || 0), 0) > 0 && (
                         <span style={{ marginLeft: '8px', color: 'var(--ion-color-medium)' }}>
-                          ({comments[post.post_id]?.reduce((total, comment) => 
+                          ({(post.comments || []).reduce((total, comment) => 
                             total + (comment.replies?.length || 0), 0)} Replies)
                         </span>
                       )}
