@@ -15,56 +15,49 @@ L.Icon.Default.mergeOptions({
 // Component to handle map center updates
 const ChangeView = ({ center }: { center: [number, number] }) => {
   const map = useMap();
-  map.setView(center, map.getZoom());
+  useEffect(() => {
+    map.setView(center, map.getZoom());
+  }, [center, map]);
   return null;
 };
 
 const Map = () => {
   const location = useLocation();
   const [position, setPosition] = useState<[number, number]>([8.367803, 124.866020]);
-  const [loaded, setLoaded] = useState(false);
+  const [mapKey, setMapKey] = useState(0);
 
-  const updatePosition = useCallback(() => {
+  useEffect(() => {
     const params = new URLSearchParams(location.search);
     const lat = params.get('lat');
     const lng = params.get('lng');
 
     if (lat && lng) {
-      setPosition([parseFloat(lat), parseFloat(lng)]);
-      setLoaded(true);
+      const newPosition: [number, number] = [parseFloat(lat), parseFloat(lng)];
+      setPosition(newPosition);
+      setMapKey(prev => prev + 1); // Force map re-render
     } else {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (pos) => {
             const { latitude, longitude } = pos.coords;
             setPosition([latitude, longitude]);
-            setLoaded(true);
+            setMapKey(prev => prev + 1); // Force map re-render
           },
           (error) => {
             console.log("Error getting location: ", error);
-            setLoaded(true);
           }
         );
       } else {
         console.log("Geolocation not supported by this browser.");
-        setLoaded(true);
       }
     }
   }, [location.search]);
 
-  useEffect(() => {
-    updatePosition();
-  }, [updatePosition]);
-
-  if (!loaded) {
-    return <div>Loading map...</div>;
-  }
-
   return (
     <div style={{ 
-      height: '100%', 
+      height: '100vh', 
       width: '100%', 
-      position: 'absolute',
+      position: 'fixed',
       top: 0,
       left: 0,
       right: 0,
@@ -72,11 +65,17 @@ const Map = () => {
       zIndex: 1
     }}>
       <MapContainer 
+        key={mapKey}
         center={position} 
         zoom={15} 
         style={{ 
           height: '100%', 
-          width: '100%'
+          width: '100%',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0
         }}
         scrollWheelZoom={true}
       >

@@ -23,8 +23,19 @@ import {
             <IonTitle>Map</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <IonContent fullscreen style={{ '--padding-top': '0px', '--padding-bottom': '0px', '--padding-start': '0px', '--padding-end': '0px' }}>
-          <div style={{ height: '100%', width: '100%', position: 'relative' }}>
+        <IonContent fullscreen style={{ 
+          '--padding-top': '0px', 
+          '--padding-bottom': '0px', 
+          '--padding-start': '0px', 
+          '--padding-end': '0px',
+          '--background': 'transparent'
+        }}>
+          <div style={{ 
+            height: '100%', 
+            width: '100%', 
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
             <Map key={location.search} />
           </div>
         </IonContent>
