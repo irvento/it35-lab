@@ -11,6 +11,7 @@ import {
   
   const MapPage: React.FC = () => {
     return (
+      
       <IonPage>
         <IonHeader>
           <IonToolbar>
@@ -20,11 +21,11 @@ import {
             <IonTitle>Map</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <IonContent className="ion-padding">
-    <div style={{ height: '100%', width: '100%' }}>
-      <Map />
-    </div>
-  </IonContent>
+        <IonContent fullscreen style={{ '--padding-top': '0px', '--padding-bottom': '0px' }}>
+          <div style={{ height: '100%', width: '100%', position: 'relative' }}>
+            <Map />
+          </div>
+        </IonContent>
       </IonPage>
     );
   };
