@@ -17,7 +17,7 @@ import {
       IonToolbar, 
       useIonRouter
   } from '@ionic/react'
-  import {homeOutline, logOutOutline, mapOutline, rocketOutline, settingsOutline} from 'ionicons/icons';
+  import {homeOutline, logOutOutline, mapOutline, rocketOutline, settingsOutline, newspaperOutline, briefcase, clipboardOutline} from 'ionicons/icons';
 import { Redirect, Route } from 'react-router';
 import Home from './Home';
 import About from './About';
@@ -26,6 +26,9 @@ import Map from './MapPage';
 import { supabase } from '../utils/supabaseClient';
 import { useState } from 'react';
 import EditProfilePage from './EditProfilePage';
+import Dashboard from './home-tabs/Dashboard';
+import Reports from './home-tabs/Reports';
+import Feed from './home-tabs/Feed';
 
 
   const Menu: React.FC = () => {
@@ -37,8 +40,12 @@ import EditProfilePage from './EditProfilePage';
     const path = [
         {name:'Home', url: '/it35-lab/app/home', icon: homeOutline},
         {name:'About', url: '/it35-lab/app/about', icon: rocketOutline},
-        {name:'Profile', url: '/it35-lab/app/profile', icon: settingsOutline},
+        
+        {name:'Reports', url: '/it35-lab/app/home/reports', icon: clipboardOutline},
+        {name:'Feed', url: '/it35-lab/app/home/feed', icon: newspaperOutline},
+        {name:'Dashboard', url: '/it35-lab/app/home/dashboard', icon: briefcase},
         {name:'Map', url: '/it35-lab/app/map', icon: mapOutline},
+        {name:'Profile', url: '/it35-lab/app/profile', icon: settingsOutline},
     ]
     const handleLogout = async () => {
         const { error } = await supabase.auth.signOut();
@@ -87,6 +94,10 @@ import EditProfilePage from './EditProfilePage';
                     <Route exact path="/it35-lab/app/home" component={Home} />
                     <Route exact path="/it35-lab/app/home/details" component={Details} />
                     <Route exact path="/it35-lab/app/about" component={About} />
+                    <Route exact path="/it35-lab/app/home/feed" component={Feed} />
+                    <Route exact path="/it35-lab/app/home/dashboard" component={Dashboard} />
+
+                    <Route exact path="/it35-lab/app/home/reports" component={Reports} />
                     <Route exact path="/it35-lab/app/map" component={Map} />
                     
                     {/* Profile Page */}    
