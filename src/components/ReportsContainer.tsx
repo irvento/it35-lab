@@ -20,7 +20,9 @@ import {
   IonPopover,
   IonSelect,
   IonSelectOption,
-  IonAlert
+  IonAlert,
+  IonSegment,
+  IonSegmentButton
 } from '@ionic/react';
 import { locationOutline, timeOutline, personOutline, createOutline } from 'ionicons/icons';
 import { supabase } from '../utils/supabaseClient';
@@ -43,10 +45,13 @@ interface Report {
 
 const ReportsContainer = () => {
   const [reports, setReports] = useState<Report[]>([]);
+  const [filteredReports, setFilteredReports] = useState<Report[]>([]);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [editingStatus, setEditingStatus] = useState<{ postId: string; status: string } | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'all' | 'my'>('all');
   const history = useHistory();
 
   useEffect(() => {
@@ -54,20 +59,30 @@ const ReportsContainer = () => {
     fetchReports();
   }, []);
 
+  useEffect(() => {
+    // Filter reports whenever viewMode or reports change
+    if (viewMode === 'my' && currentUserId) {
+      setFilteredReports(reports.filter(report => report.user_id.toString() === currentUserId));
+    } else {
+      setFilteredReports(reports);
+    }
+  }, [viewMode, reports, currentUserId]);
+
   const checkAdminRole = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       const { data: userData, error } = await supabase
         .from('users')
-        .select('role')
+        .select('role, user_id')
         .eq('user_email', user.email)
         .single();
 
       if (!error && userData) {
         setIsAdmin(userData.role === 'admin');
-        console.log('User role:', userData.role); // Debug log
+        setCurrentUserId(userData.user_id);
+        console.log('User role:', userData.role);
       } else {
-        console.error('Error fetching user role:', error); // Debug log
+        console.error('Error fetching user role:', error);
       }
     }
   };
@@ -151,6 +166,14 @@ const ReportsContainer = () => {
       <IonCard>
         <IonCardHeader>
           <IonCardTitle>Reports Summary</IonCardTitle>
+          <IonSegment value={viewMode} onIonChange={e => setViewMode(e.detail.value as 'all' | 'my')}>
+            <IonSegmentButton value="all">
+              <IonLabel>All Reports</IonLabel>
+            </IonSegmentButton>
+            <IonSegmentButton value="my">
+              <IonLabel>My Reports</IonLabel>
+            </IonSegmentButton>
+          </IonSegment>
         </IonCardHeader>
         <IonCardContent>
           <IonGrid>
@@ -162,7 +185,7 @@ const ReportsContainer = () => {
               <IonCol size="2"><strong>Actions</strong></IonCol>
             </IonRow>
 
-            {reports.map((report) => (
+            {filteredReports.map((report) => (
               <IonRow 
                 key={report.post_id} 
                 className="ion-align-items-center ion-padding-vertical"
