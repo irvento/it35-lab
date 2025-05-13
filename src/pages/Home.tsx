@@ -20,13 +20,13 @@ import { Route, Redirect } from 'react-router';
 
 import Reports from './home-tabs/Reports';
 import Feed from './home-tabs/Feed';
-import Logs from './home-tabs/Logs';
+import Dashboard from './home-tabs/Dashboard';
   
   const Home: React.FC = () => {
 
     const tabs = [
       {name:'Feed', tab:'feed',url: '/it35-lab/app/home/feed', icon: bookOutline},
-      {name:'Logs', tab:'logs', url: '/it35-lab/app/home/logs', icon: fileTrayFullOutline},
+      {name:'Dashboard', tab:'dashboard', url: '/it35-lab/app/home/dashboard', icon: fileTrayFullOutline},
       {name:'Reports',tab:'reports', url: '/it35-lab/app/home/reports', icon: flameOutline},
     ]
     
@@ -46,7 +46,7 @@ import Logs from './home-tabs/Logs';
         <IonRouterOutlet>
 
           <Route exact path="/it35-lab/app/home/feed" render={Feed} />
-          <Route exact path="/it35-lab/app/home/logs" render={Logs} />
+          <Route exact path="/it35-lab/app/home/dashboard" render={Dashboard} />
           <Route exact path="/it35-lab/app/home/reports" render={Reports} />
 
           <Route exact path="/it35-lab/app/home">
