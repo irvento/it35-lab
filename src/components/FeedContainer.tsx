@@ -104,9 +104,34 @@ const FeedContainer = () => {
       }
     };
 
+    // Subscribe to post updates
+    const postsSubscription = supabase
+      .channel('posts_changes')
+      .on('postgres_changes', 
+        { 
+          event: 'UPDATE', 
+          schema: 'public', 
+          table: 'posts' 
+        }, 
+        (payload) => {
+          const updatedPost = payload.new as Post;
+          setPosts(currentPosts => 
+            currentPosts.map(post => 
+              post.post_id === updatedPost.post_id ? updatedPost : post
+            )
+          );
+        }
+      )
+      .subscribe();
+
     fetchUser();
     fetchPosts();
     getCurrentLocation();
+
+    // Cleanup subscription
+    return () => {
+      postsSubscription.unsubscribe();
+    };
   }, []);
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -440,15 +465,13 @@ const FeedContainer = () => {
                 )}
                 <IonRow>
                   <IonCol>
-                    <IonSelect
-                      value={post.status}
-                      onIonChange={e => updatePostStatus(post.post_id, e.detail.value)}
-                      interface="popover"
-                    >
-                      <IonSelectOption value="pending">Pending</IonSelectOption>
-                      <IonSelectOption value="in_progress">In Progress</IonSelectOption>
-                      <IonSelectOption value="resolved">Resolved</IonSelectOption>
-                    </IonSelect>
+                    <IonChip color={
+                      post.status === 'resolved' ? 'success' :
+                      post.status === 'in_progress' ? 'warning' :
+                      'danger'
+                    }>
+                      {post.status.replace('_', ' ').charAt(0).toUpperCase() + post.status.slice(1)}
+                    </IonChip>
                   </IonCol>
                   <IonCol>
                     <IonChip color={
