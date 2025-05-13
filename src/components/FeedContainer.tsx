@@ -210,8 +210,8 @@ const FeedContainer = () => {
   };
 
   return (
-    <IonApp>
-      <IonPage>
+    
+      <>
         <IonHeader>
           <IonToolbar>
             <IonTitle>Posts</IonTitle>
@@ -354,8 +354,8 @@ const FeedContainer = () => {
           message={alertMessage}
           buttons={['OK']}
         />
-      </IonPage>
-    </IonApp>
+      </>
+
   );
 };
 

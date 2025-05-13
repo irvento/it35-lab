@@ -1,3 +1,4 @@
+
 import { 
   IonButtons,
     IonContent, 
@@ -7,7 +8,9 @@ import {
     IonTitle, 
     IonToolbar 
 } from '@ionic/react';
+
 import FeedContainer from '../../components/FeedContainer';
+import './Feed.css';
 
 const Feed: React.FC = () => {
   return (
@@ -17,11 +20,11 @@ const Feed: React.FC = () => {
           <IonButtons slot='start'>
             <IonMenuButton></IonMenuButton>
           </IonButtons>
-          <IonTitle>Feed</IonTitle>
+          <IonTitle class='fontstyle'>Home</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-      <div
+        <div
           style={{
             display: 'flex',
             alignItems: 'center',
