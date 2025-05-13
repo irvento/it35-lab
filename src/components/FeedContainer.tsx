@@ -34,6 +34,7 @@ interface Post {
   avatar_url: string;
   post_content: string;
   status: string;
+  priority: string;
   latitude: number;
   longitude: number;
   post_created_at: string;
@@ -63,6 +64,7 @@ const FeedContainer = () => {
   const [replies, setReplies] = useState<{ [key: string]: Reply[] }>({});
   const [newReply, setNewReply] = useState('');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [priority, setPriority] = useState<string>('medium');
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -165,7 +167,8 @@ const FeedContainer = () => {
           photo_url: photoUrl,
           latitude: currentLocation.latitude,
           longitude: currentLocation.longitude,
-          status: 'pending'
+          status: 'pending',
+          priority: priority
         }
       ])
       .select('*');
@@ -175,6 +178,7 @@ const FeedContainer = () => {
       setPostContent('');
       setPhotoFile(null);
       setPhotoPreview(null);
+      setPriority('medium');
       if (fileInputRef.current) fileInputRef.current.value = '';
       setAlertMessage('Post created successfully!');
       setIsAlertOpen(true);
@@ -381,6 +385,17 @@ const FeedContainer = () => {
               {photoPreview && (
                 <img src={photoPreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: 200, borderRadius: 8, marginBottom: 10 }} />
               )}
+              <IonSelect
+                value={priority}
+                onIonChange={e => setPriority(e.detail.value)}
+                placeholder="Select Priority"
+                style={{ marginTop: '10px', marginBottom: '10px' }}
+              >
+                <IonSelectOption value="low">Low Priority</IonSelectOption>
+                <IonSelectOption value="medium">Medium Priority</IonSelectOption>
+                <IonSelectOption value="high">High Priority</IonSelectOption>
+                <IonSelectOption value="urgent">Urgent</IonSelectOption>
+              </IonSelect>
               {currentLocation && (
                 <IonText color="medium">
                   <p>Location will be included with your post</p>
@@ -434,6 +449,16 @@ const FeedContainer = () => {
                       <IonSelectOption value="in_progress">In Progress</IonSelectOption>
                       <IonSelectOption value="resolved">Resolved</IonSelectOption>
                     </IonSelect>
+                  </IonCol>
+                  <IonCol>
+                    <IonChip color={
+                      post.priority === 'urgent' ? 'danger' :
+                      post.priority === 'high' ? 'warning' :
+                      post.priority === 'medium' ? 'primary' :
+                      'success'
+                    }>
+                      {post.priority.charAt(0).toUpperCase() + post.priority.slice(1)} Priority
+                    </IonChip>
                   </IonCol>
                   <IonCol size="auto">
                     <IonButton
