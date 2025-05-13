@@ -1,23 +1,23 @@
 import { 
     IonButtons,
-      IonContent, 
-      IonHeader, 
-      IonMenuButton, 
-      IonPage, 
-      IonTitle, 
-      IonToolbar 
-  } from '@ionic/react';
-import ReportsContainer from '../../components/ReportsContainer';
+    IonContent, 
+    IonHeader, 
+    IonMenuButton, 
+    IonPage, 
+    IonTitle, 
+    IonToolbar 
+} from '@ionic/react';
+import DashboardContainer from '../../components/DashboardContainer';
 
-const Reports: React.FC = () => {
+const Dashboard: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonButtons slot='start'>
-            <IonMenuButton></IonMenuButton>
+          <IonButtons slot="start">
+            <IonMenuButton />
           </IonButtons>
-          <IonTitle>Reports</IonTitle>
+          <IonTitle>Dashboard</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen style={{ 
@@ -29,11 +29,11 @@ const Reports: React.FC = () => {
           margin: '0 auto',
           width: '100%'
         }}>
-          <ReportsContainer />
+          <DashboardContainer />
         </div>
       </IonContent>
     </IonPage>
   );
 };
 
-export default Reports;
+export default Dashboard;
