@@ -14,6 +14,10 @@ interface Reply {
   created_at: string;
   username?: string;
   avatar_url?: string;
+  users?: {
+    username: string;
+    user_avatar_url: string;
+  };
 }
 
 interface Comment {
@@ -271,7 +275,14 @@ const FeedContainer = () => {
       .from('comments')
       .select(`
         *,
-        users:user_id (username, user_avatar_url)
+        users:user_id (username, user_avatar_url),
+        comment_replies (
+          id,
+          reply,
+          created_at,
+          user_id,
+          users:user_id (username, user_avatar_url)
+        )
       `)
       .eq('post_id', postId)
       .order('created_at', { ascending: true });
@@ -280,7 +291,12 @@ const FeedContainer = () => {
       const formattedComments = data.map(comment => ({
         ...comment,
         username: comment.users?.username,
-        avatar_url: comment.users?.user_avatar_url
+        avatar_url: comment.users?.user_avatar_url,
+        replies: comment.comment_replies?.map((reply: Reply) => ({
+          ...reply,
+          username: reply.users?.username,
+          avatar_url: reply.users?.user_avatar_url
+        })) || []
       }));
       setComments(prev => ({ ...prev, [postId]: formattedComments }));
     }
@@ -318,7 +334,8 @@ const FeedContainer = () => {
       const newCommentData = {
         ...data[0],
         username: data[0].users?.username,
-        avatar_url: data[0].users?.user_avatar_url
+        avatar_url: data[0].users?.user_avatar_url,
+        replies: []
       };
       setComments(prev => ({
         ...prev,
@@ -377,10 +394,24 @@ const FeedContainer = () => {
         username: data[0].users?.username,
         avatar_url: data[0].users?.user_avatar_url
       };
-      setReplies(prev => ({
-        ...prev,
-        [commentId]: [...(prev[commentId] || []), newReplyData]
-      }));
+
+      // Update the comments state to include the new reply
+      setComments(prev => {
+        const updatedComments = { ...prev };
+        Object.keys(updatedComments).forEach(postId => {
+          updatedComments[postId] = updatedComments[postId].map(comment => {
+            if (comment.id === commentId) {
+              return {
+                ...comment,
+                replies: [...(comment.replies || []), newReplyData]
+              };
+            }
+            return comment;
+          });
+        });
+        return updatedComments;
+      });
+
       setNewReply('');
       setReplyingTo(null);
     }
@@ -506,6 +537,13 @@ const FeedContainer = () => {
                       onClick={() => toggleComments(post.post_id)}
                     >
                       {comments[post.post_id]?.length || 0} Comments
+                      {comments[post.post_id]?.reduce((total, comment) => 
+                        total + (comment.replies?.length || 0), 0) > 0 && (
+                        <span style={{ marginLeft: '8px', color: 'var(--ion-color-medium)' }}>
+                          ({comments[post.post_id]?.reduce((total, comment) => 
+                            total + (comment.replies?.length || 0), 0)} Replies)
+                        </span>
+                      )}
                     </IonButton>
                   </IonCol>
                 </IonRow>
@@ -545,10 +583,9 @@ const FeedContainer = () => {
                                 size="small"
                                 onClick={() => {
                                   setReplyingTo(replyingTo === comment.id ? null : comment.id);
-                                  toggleReplies(comment.id);
                                 }}
                               >
-                                {replies[comment.id]?.length || 0} Replies
+                                {comment.replies?.length || 0} Replies
                               </IonButton>
                             </div>
                           </IonLabel>
@@ -568,7 +605,7 @@ const FeedContainer = () => {
                               </IonButton>
                             </div>
 
-                            {replies[comment.id]?.map(reply => (
+                            {comment.replies?.map(reply => (
                               <IonItem key={reply.id} style={{ marginLeft: '1rem' }}>
                                 <IonAvatar slot="start">
                                   <img src={reply.avatar_url || 'https://ionicframework.com/docs/img/demos/avatar.svg'} alt={reply.username} />

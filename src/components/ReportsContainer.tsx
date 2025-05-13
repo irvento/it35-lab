@@ -46,11 +46,31 @@ const ReportsContainer = () => {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [editingStatus, setEditingStatus] = useState<{ postId: string; status: string } | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const history = useHistory();
 
   useEffect(() => {
+    checkAdminRole();
     fetchReports();
   }, []);
+
+  const checkAdminRole = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: userData, error } = await supabase
+        .from('users')
+        .select('role')
+        .eq('user_email', user.email)
+        .single();
+
+      if (!error && userData) {
+        setIsAdmin(userData.role === 'admin');
+        console.log('User role:', userData.role); // Debug log
+      } else {
+        console.error('Error fetching user role:', error); // Debug log
+      }
+    }
+  };
 
   const fetchReports = async () => {
     const { data, error } = await supabase
@@ -75,6 +95,12 @@ const ReportsContainer = () => {
   };
 
   const updateStatus = async (postId: string, newStatus: string) => {
+    if (!isAdmin) {
+      setAlertMessage('Only administrators can update report status.');
+      setIsAlertOpen(true);
+      return;
+    }
+
     const { data, error } = await supabase
       .from('posts')
       .update({ 
@@ -155,13 +181,15 @@ const ReportsContainer = () => {
                     <IonChip color={getStatusColor(report.status)}>
                       {report.status.replace('_', ' ').charAt(0).toUpperCase() + report.status.slice(1)}
                     </IonChip>
-                    <IonButton
-                      fill="clear"
-                      size="small"
-                      onClick={() => setEditingStatus({ postId: report.post_id, status: report.status })}
-                    >
-                      <IonIcon icon={createOutline} />
-                    </IonButton>
+                    {isAdmin && (
+                      <IonButton
+                        fill="clear"
+                        size="small"
+                        onClick={() => setEditingStatus({ postId: report.post_id, status: report.status })}
+                      >
+                        <IonIcon icon={createOutline} />
+                      </IonButton>
+                    )}
                   </div>
                 </IonCol>
                 <IonCol size="3">

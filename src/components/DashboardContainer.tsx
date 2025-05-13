@@ -87,42 +87,44 @@ const DashboardContainer = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchDashboardStats();
-  }, []);
-
   const fetchDashboardStats = async () => {
     try {
+      setLoading(true);
+      
       // Fetch total reports
       const { count: totalReports } = await supabase
         .from('posts')
         .select('*', { count: 'exact', head: true });
 
-      // Fetch priority stats
-      const { data: priorityData } = await supabase
-        .from('posts')
-        .select('priority, count')
-        .select('priority');
-
-      // Fetch status stats
-      const { data: statusData } = await supabase
-        .from('posts')
-        .select('status, count')
-        .select('status');
-
-      // Fetch posts with timestamps and locations
-      const { data: postsData } = await supabase
+      // Fetch all posts data in one query
+      const { data: postsData, error: postsError } = await supabase
         .from('posts')
         .select(`
           post_id,
           post_created_at,
           post_updated_at,
           status,
-          latitude,
-          longitude,
+          priority,
           user_id
         `)
         .order('post_created_at', { ascending: false });
+
+      if (postsError) throw postsError;
+
+      // Calculate priority stats
+      const priorityStats = {
+        urgent: postsData?.filter(post => post.priority === 'urgent').length || 0,
+        high: postsData?.filter(post => post.priority === 'high').length || 0,
+        medium: postsData?.filter(post => post.priority === 'medium').length || 0,
+        low: postsData?.filter(post => post.priority === 'low').length || 0,
+      };
+
+      // Calculate status stats
+      const statusStats = {
+        pending: postsData?.filter(post => post.status === 'pending').length || 0,
+        in_progress: postsData?.filter(post => post.status === 'in_progress').length || 0,
+        resolved: postsData?.filter(post => post.status === 'resolved').length || 0,
+      };
 
       // Calculate response times
       const responseTimes = postsData?.map(post => {
@@ -142,7 +144,7 @@ const DashboardContainer = () => {
       };
 
       // Fetch user stats
-      const { data: userStatsData } = await supabase
+      const { data: userStatsData, error: userError } = await supabase
         .from('users')
         .select(`
           user_id,
@@ -151,19 +153,7 @@ const DashboardContainer = () => {
           user_email
         `);
 
-      // Process and format the data
-      const priorityStats = {
-        urgent: priorityData?.filter((p: any) => p.priority === 'urgent').length || 0,
-        high: priorityData?.filter((p: any) => p.priority === 'high').length || 0,
-        medium: priorityData?.filter((p: any) => p.priority === 'medium').length || 0,
-        low: priorityData?.filter((p: any) => p.priority === 'low').length || 0,
-      };
-
-      const statusStats = {
-        pending: statusData?.filter((s: any) => s.status === 'pending').length || 0,
-        in_progress: statusData?.filter((s: any) => s.status === 'in_progress').length || 0,
-        resolved: statusData?.filter((s: any) => s.status === 'resolved').length || 0,
-      };
+      if (userError) throw userError;
 
       // Process user statistics
       const processedUserStats = {
@@ -198,6 +188,29 @@ const DashboardContainer = () => {
     }
   };
 
+  useEffect(() => {
+    fetchDashboardStats();
+
+    // Set up real-time subscription
+    const subscription = supabase
+      .channel('dashboard_changes')
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'posts' 
+        }, 
+        () => {
+          fetchDashboardStats();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
   const handleRefresh = async (event: CustomEvent<RefresherEventDetail>) => {
     await fetchDashboardStats();
     event.detail.complete();
@@ -207,6 +220,14 @@ const DashboardContainer = () => {
     return (
       <div style={{ padding: '20px', textAlign: 'center' }}>
         <IonText>Loading dashboard...</IonText>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <IonText color="danger">Failed to load dashboard data</IonText>
       </div>
     );
   }
