@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { IonApp, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonInput, IonLabel, IonModal, IonFooter, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonAlert, IonText, IonAvatar, IonCol, IonGrid, IonRow, IonIcon, IonPopover, IonSelect, IonSelectOption } from '@ionic/react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '../utils/supabaseClient';
@@ -17,6 +17,7 @@ interface Post {
   longitude: number;
   post_created_at: string;
   post_updated_at: string;
+  photo_url?: string;
 }
 
 const FeedContainer = () => {
@@ -30,6 +31,9 @@ const FeedContainer = () => {
   const [alertMessage, setAlertMessage] = useState('');
   const [popoverState, setPopoverState] = useState<{ open: boolean; event: Event | null; postId: string | null }>({ open: false, event: null, postId: null });
   const [currentLocation, setCurrentLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const history = useHistory();
 
   useEffect(() => {
@@ -75,6 +79,16 @@ const FeedContainer = () => {
     getCurrentLocation();
   }, []);
 
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setPhotoFile(file);
+    if (file) {
+      setPhotoPreview(URL.createObjectURL(file));
+    } else {
+      setPhotoPreview(null);
+    }
+  };
+
   const createPost = async () => {
     if (!postContent || !user || !username || !currentLocation) return;
   
@@ -90,7 +104,28 @@ const FeedContainer = () => {
     }
   
     const avatarUrl = userData?.user_avatar_url || 'https://ionicframework.com/docs/img/demos/avatar.svg';
-  
+
+    // Photo upload logic
+    let photoUrl = null;
+    if (photoFile) {
+      const fileExt = photoFile.name.split('.').pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `images/${fileName}`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('photo-images')
+        .upload(filePath, photoFile, {
+          cacheControl: '3600',
+          upsert: true,
+        });
+      if (uploadError) {
+        setAlertMessage(`Photo upload failed: ${uploadError.message}`);
+        setIsAlertOpen(true);
+        return;
+      }
+      const { data: publicUrlData } = supabase.storage.from('photo-images').getPublicUrl(filePath);
+      photoUrl = publicUrlData.publicUrl;
+    }
+
     const { data, error } = await supabase
       .from('posts')
       .insert([
@@ -99,6 +134,7 @@ const FeedContainer = () => {
           user_id: user.id, 
           username, 
           avatar_url: avatarUrl,
+          photo_url: photoUrl,
           latitude: currentLocation.latitude,
           longitude: currentLocation.longitude,
           status: 'pending'
@@ -109,6 +145,9 @@ const FeedContainer = () => {
     if (!error && data) {
       setPosts([data[0] as Post, ...posts]);
       setPostContent('');
+      setPhotoFile(null);
+      setPhotoPreview(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
       setAlertMessage('Post created successfully!');
       setIsAlertOpen(true);
     }
@@ -191,6 +230,16 @@ const FeedContainer = () => {
                     onIonChange={e => setPostContent(e.detail.value!)} 
                     placeholder="Write a post..." 
                   />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    onChange={handlePhotoChange}
+                    style={{ marginTop: '10px', marginBottom: '10px' }}
+                  />
+                  {photoPreview && (
+                    <img src={photoPreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: 200, borderRadius: 8, marginBottom: 10 }} />
+                  )}
                   {currentLocation && (
                     <IonText color="medium">
                       <p>Location will be included with your post</p>
@@ -230,6 +279,9 @@ const FeedContainer = () => {
                     <IonText style={{ color: 'black' }}>
                       <h1>{post.post_content}</h1>
                     </IonText>
+                    {post.photo_url && (
+                      <img src={post.photo_url} alt="Post" style={{ maxWidth: '100%', maxHeight: 300, borderRadius: 8, margin: '10px 0' }} />
+                    )}
                     <IonRow>
                       <IonCol>
                         <IonSelect
